@@ -1,0 +1,112 @@
+#include <iostream>
+#include <bits/stdc++.h>
+using namespace std;
+
+int indexx[100000];
+int sum[100000];
+
+
+void BuildTree(int start, int last, int indexxFunc) {
+    if(last<start)return;
+
+    int mid = (start + last) / 2;
+
+    if (start == last) {
+        sum[indexxFunc] = indexx[start];
+        int var = sum[indexxFunc];
+        return;
+    } else {
+        BuildTree(start, mid, indexxFunc * 2);
+        BuildTree(mid + 1, last, indexxFunc * 2 + 1);
+        sum[indexxFunc]=min(sum[indexxFunc*2],sum[indexxFunc*2+1]);
+        //sum[indexxFunc] = sum[indexxFunc * 2] + sum[indexxFunc * 2 + 1];
+        // eine dui part er sum paisos ty ei step thaika tui sum[indexFunk] paitesos. ekhon
+        // sum na paia jodi dui pash thaika dui pasher minimum pas tylei sum[indexFunc] er
+        // minimum pabi.
+        // sum[indexFunc] = min(sum[2*indexFunc], sum[2*indexFunc+1]);
+    }
+    int result = sum[indexxFunc];
+}
+
+
+void UpdateTree(int start, int last, int indexx, int updateIn, int updateTo) {
+    if (start == last) {
+        sum[indexx] = updateTo;
+        return;
+    }
+
+    int mid = (start + last) / 2;
+    if (updateIn - 1 < mid) {
+
+        UpdateTree(start, mid, indexx * 2, updateIn, updateTo);
+    } else {
+        UpdateTree(mid + 1, last, indexx * 2 + 1, updateIn, updateTo);
+    }
+   // sum[indexx] = sum[indexx * 2] + sum[indexx * 2 + 1];
+   sum[indexx]=min(sum[2*indexx],sum[2*indexx+1]);
+   // ek vabei eine sum er jaygay minimum hoibo.
+    // sum[indexx] = min(sum[2*indexx], sum[2*indexx+1]);
+
+}
+
+int QueryInTree(int start, int last, int indexx2, int from, int to) {
+    if(from>last||start>to) return INT32_MAX; // eine jehetu minimum bair kortesi tyle eine sob thaika
+    // boro kisu return korte hoibo karon 0 thaika chuto arow number thakte pare
+    // return INT_MAX;
+    if (from <= start && last <= to)
+    {return sum[indexx2];}
+
+
+    int mid = (start + last) / 2;
+
+    int sum1 = QueryInTree(start, mid, indexx2 * 2, from, to);
+    int sum2 = QueryInTree(mid + 1, last, indexx2 * 2 + 1, from, to);
+
+    return min(sum2,sum1);
+
+    // dui pash thaika minimum number ta paisos. tyle sei duita number er minimum ta return
+    // korlei hoitese
+    // return min(sum2, sum1);
+}
+
+int main() {
+    int nodes, updateIn, updateTo, from, to,queries;
+    memset(sum, 0, 100);
+    cin >> nodes;
+
+
+    for (int i = 1; i <= nodes; i++) {
+        cin>>indexx[i];
+    }
+   /* for (int i = 1; i < nodes + 1; i++) {
+        indexx[i] = i;
+    }*/
+    BuildTree(1, nodes, 1);
+
+
+    cout << "The Nodes of the Tree are: " << endl;
+
+    for (int i = 1; i < 2 * nodes ; i++) {
+        cout << sum[i] << " ";
+    }
+
+   /* cout << "Update Tree In Node : " << endl;
+    cin >> updateIn;
+    cout << "Update The tree to : " << endl;
+    cin >> updateTo;
+    UpdateTree(1, nodes, 1, updateIn, updateTo);
+    cout << endl;
+    for (int i = 1; i < 2 * nodes; i++) {
+        cout << sum[i] << " ";
+    }*/
+   /* cout << "Set Number of node to query From :" << endl;
+    cin >> from;
+    cout << "To: " << endl;
+    cin >> to;*/
+    for (int i = 0; i < queries; i++) {
+        cin>>from>>to;
+        cout  << QueryInTree(1, nodes, 1, from+1, to+1)<<endl;
+    }
+    //std::cout << "Hello, World!" << std::endl;
+    return 0;
+}
