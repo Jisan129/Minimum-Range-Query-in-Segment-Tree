@@ -1,0 +1,95 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+int index[1000];
+int sum[10000000];
+
+
+void BuildTree(int start, int last, int indexFunc) {
+    if(last<start)return;
+
+    int mid = (start + last) / 2;
+
+    if (start == last) {
+        sum[indexFunc] = index[start];
+        int var = sum[indexFunc];
+        return;
+    } else {
+        BuildTree(start, mid, indexFunc * 2);
+        BuildTree(mid + 1, last, indexFunc * 2 + 1);
+        sum[indexFunc] = sum[indexFunc * 2] + sum[indexFunc * 2 + 1];
+    }
+    int result = sum[indexFunc];
+}
+
+
+void UpdateTree(int start, int last, int index, int updateIn, int updateTo) {
+    if (start == last) {
+        sum[index] = updateTo;
+        return;
+    }
+
+    int mid = (start + last) / 2;
+    if (updateIn - 1 < mid) {
+
+        UpdateTree(start, mid, index * 2, updateIn, updateTo);
+    } else {
+        UpdateTree(mid + 1, last, index * 2 + 1, updateIn, updateTo);
+    }
+    sum[index] = sum[index * 2] + sum[index * 2 + 1];
+
+}
+
+int QueryInTree(int start, int last, int index2, int from, int to) {
+    if(from>last||start>to) return 0;
+    if (from <= start && last <= to)
+    {return sum[index2];}
+
+
+    int mid = (start + last) / 2;
+
+    int sum1 = QueryInTree(start, mid, index2 * 2, from, to);
+    int sum2 = QueryInTree(mid + 1, last, index2 * 2 + 1, from, to);
+
+    return sum2 + sum1;
+
+}
+
+int main() {
+    int nodes, updateIn, updateTo, from, to;
+    memset(sum, 0, 100);
+    cin >> nodes;
+
+
+/*    for (int i = 1; i < nodes; i++) {
+        cin>>index[i];
+    }*/
+    for (int i = 1; i < nodes + 1; i++) {
+        index[i] = i;
+    }
+    BuildTree(1, nodes, 1);
+
+
+    cout << "The Nodes of the Tree are: " << endl;
+
+    for (int i = 1; i < 2 * nodes + 1; i++) {
+        cout << sum[i] << " ";
+    }
+
+    cout << "Update Tree In Node : " << endl;
+    cin >> updateIn;
+    cout << "Update The tree to : " << endl;
+    cin >> updateTo;
+    UpdateTree(1, nodes, 1, updateIn, updateTo);
+    cout << endl;
+    for (int i = 1; i < 2 * nodes; i++) {
+        cout << sum[i] << " ";
+    }
+    cout << "Set Number of node to query From :" << endl;
+    cin >> from;
+    cout << "To: " << endl;
+    cin >> to;
+    cout  << QueryInTree(1, nodes, 1, from, to);
+    //std::cout << "Hello, World!" << std::endl;
+    return 0;
+}
